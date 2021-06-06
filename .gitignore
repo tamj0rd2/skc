@@ -1,0 +1,7 @@
+node_modules
+.envrc
+bin
+tmp
+artifacts
+dist
+frontend/.next

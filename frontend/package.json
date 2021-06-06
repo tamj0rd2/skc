@@ -1,0 +1,17 @@
+{
+  "name": "skc-frontend",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build && next export -o dist",
+    "start": "serve dist -p 3000 -s",
+    "test": "jest --passWithNoTests",
+    "deploy": "pulumi stack select skc-frontend-prod && pulumi up -f -y && aws s3 sync ./dist/ s3://$(pulumi stack output bucketName) --acl public-read --profile skc",
+    "destroy": "pulumi stack select skc-frontend-prod && pulumi destroy -f"
+  },
+  "dependencies": {
+    "next": "^11.0.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[javascript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "editor.formatOnSave": true
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "editor.formatOnSave": true
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "editor.formatOnSave": true
+  },
+  "git.ignoreLimitWarning": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true,
+    "source.fixAll.eslint": true
+  },
+  "files.exclude": {
+    "**/node_modules/**": true,
+    "**/.cache/": true,
+    "**/bin/": true,
+    "**/tmp/": true,
+    "**/artifacts/": true
+  },
+  "search.exclude": {
+    "**/node_modules/**": true,
+    "**/.cache/": true,
+    "**/bin/": true,
+    "**/tmp/": true,
+    "**/artifacts/": true,
+    "**/dist/": true
+  }
+}

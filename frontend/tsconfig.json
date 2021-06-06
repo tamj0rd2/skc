@@ -1,0 +1,21 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "rootDir": "./",
+    "composite": true,
+    "outDir": "./bin",
+    "target": "esnext",
+    "module": "esnext",
+    "jsx": "preserve",
+    "paths": {
+      "~/*": ["src/*"]
+    },
+    "lib": ["dom", "es2019"],
+    "skipLibCheck": true,
+    "allowJs": true,
+    "noEmit": true
+  },
+  "include": ["./src/**/*.ts", "./infra/**/*.ts"],
+  "exclude": ["artifacts/**/*", "dist/**/*", "public/**/*", "node_modules", "bin"]
+}

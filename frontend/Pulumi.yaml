@@ -1,0 +1,4 @@
+name: skc-frontend
+runtime: nodejs
+description: A calculator for the Skull King card game
+main: infra
