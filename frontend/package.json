@@ -6,8 +6,8 @@
     "build": "next build && next export -o dist",
     "start": "serve dist -p 3000 -s",
     "test": "jest --passWithNoTests",
-    "deploy": "pulumi stack select skc-frontend-prod && pulumi up -f -y && aws s3 sync ./dist/ s3://$(pulumi stack output bucketName) --acl public-read --profile skc",
-    "destroy": "pulumi stack select skc-frontend-prod && pulumi destroy -f"
+    "deploy": "pulumi logout && pulumi stack select skc-frontend-prod && pulumi up -f -y && aws s3 sync ./dist/ s3://$(pulumi stack output bucketName) --acl public-read --profile skc",
+    "destroy": "pulumi logout && pulumi stack select skc-frontend-prod && pulumi destroy -f"
   },
   "dependencies": {
     "babel-plugin-styled-components": "^1.12.0",

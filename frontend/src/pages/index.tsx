@@ -13,6 +13,12 @@ const Input = styled.input`
   ::-webkit-inner-spin-button {
     -webkit-appearance: none;
   }
+  
+  input,
+  input::-webkit-input-placeholder {
+    font-size:8px;
+    line-height: 3;
+  }
 `
 
 interface RoundInput {
@@ -25,12 +31,17 @@ const RoundInput: React.FC<RoundInput> = (props) => {
   return (
     <td>
       <Input
-        type="number"
+        type="tel"
+        pattern="\d*"
         value={props.state.bet ?? ''}
+        placeholder="Bet"
         onChange={(e) =>props.onBetChange(parseInt(e.target.value))} />
+        
       <Input
-        type="number"
+        type="tel"
+        pattern="\d*"
         value={props.state.actual ?? ''}
+        placeholder="Won"
         onChange={(e) => props.onActualChange(parseInt(e.target.value))} />
     </td>
   )
@@ -40,8 +51,8 @@ const Table = styled.table`
   border-collapse: collapse;
 
   th, td {
-    border-left: 2px solid red;
-    border-right: 2px solid red;
+    border-left: 1px solid grey;
+    border-right: 1px solid grey;
   }
 
   td {
