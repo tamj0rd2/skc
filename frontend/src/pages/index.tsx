@@ -1,7 +1,9 @@
 import React, { useReducer } from 'react'
 import styled from 'styled-components'
+import { RoundModule } from '../../components/Round'
+import { ActualChangedAction, BetChangedAction, Player, State, stateReducer, Round } from '../../components/state'
 
-const Input = styled.input`
+const TableInput = styled.input`
   display: inline-block;
   width: 25px;
   height: 25px;
@@ -21,27 +23,27 @@ const Input = styled.input`
   }
 `
 
-interface RoundInput {
+interface RoundInputForTable {
   state: Round
   onBetChange(v: number): void
   onActualChange(v: number): void
 }
 
-const RoundInput: React.FC<RoundInput> = (props) => {
+const RoundInputForTable: React.FC<RoundInputForTable> = (props) => {
   return (
     <td>
-      <Input
+      <TableInput
         type="tel"
         pattern="\d*"
         value={props.state.bet ?? ''}
         placeholder="Bet"
         onChange={(e) =>props.onBetChange(parseInt(e.target.value))} />
         
-      <Input
+      <TableInput
         type="tel"
         pattern="\d*"
         value={props.state.actual ?? ''}
-        placeholder="Won"
+        placeholder="Act"
         onChange={(e) => props.onActualChange(parseInt(e.target.value))} />
     </td>
   )
@@ -80,7 +82,7 @@ const HomePage: React.FC = () => {
             <tr key={roundIndex}>
               <th>{roundIndex + 1}</th>
               {state.players.map((p) => (
-                <RoundInput
+                <RoundInputForTable
                   key={p.id}
                   state={p.rounds[roundIndex]}
                   onBetChange={(b) => dispatch(new BetChangedAction(b, p.id, roundIndex))}
@@ -97,104 +99,19 @@ const HomePage: React.FC = () => {
           </tr>
         </tbody>
       </Table>
+      <RoundModule state={state} dispatch={dispatch} />
     </>
   )
 }
 
 export default HomePage
 
-const stateReducer = (state: State, action: Action): State => {
-  console.log(action)
-
-  const calcScore = (bet: number | undefined, actual: number | undefined, roundIndex: number): number => {
-    const roundNumber = roundIndex + 1
-    if (bet === undefined || actual === undefined) return 0
-    if (bet === 0) return actual === 0 ? roundNumber * 10 : roundNumber * -10
-    if (bet === actual) return bet * 20
-    return Math.abs(bet - actual) * -10
-  }
-
-  if (action instanceof BetChangedAction) {
-    const playerIndex = state.players.findIndex(p => p.id === action.playerId)
-    if (playerIndex < 0) throw new Error('whaa')
-    return {
-      ...state,
-      players: replace(state.players, playerIndex, (p) => ({
-        ...p,
-        rounds: replace(p.rounds, action.roundIndex, (r) => ({
-          ...r, bet: action.bet, score: calcScore(action.bet, r.actual, action.roundIndex)
-        }))
-      }))
-    }
-  }
-
-  if (action instanceof ActualChangedAction) {
-    const playerIndex = state.players.findIndex(p => p.id === action.playerId)
-    if (playerIndex < 0) throw new Error('whaa')
-    return {
-      ...state,
-      players: replace(state.players, playerIndex, (p) => ({
-        ...p,
-        rounds: replace(p.rounds, action.roundIndex, (r) => ({
-          ...r, actual: action.actual, score: calcScore(r.bet, action.actual, action.roundIndex)
-        }))
-      }))
-    }
-  }
-
-  return state
-}
-
 const initialState: State = {
   players: Array(6).fill(0).map<Player>((_, i) => ({
-    rounds: Array(10).fill({ bonus: 0, score: 0 }),
+    rounds: Array(10).fill(0).map<Round>(() => 
+      ({ actual: undefined, bet: undefined, bonus: 0, score: 0, piratesCaptured: 0, skullKingsCaptured: 0 })
+    ),
     id: i + 1,
     name: `Player ${i + 1}`,
   }))
-}
-
-interface Player {
-  rounds: Round[]
-  id: number
-  name: string
-}
-
-interface State {
-  players: Player[]
-}
-
-interface Round {
-  bet: number | undefined
-  actual: number | undefined
-  bonus: number
-  score: number
-}
-
-type Action = BetChangedAction | ActualChangedAction
-
-class BetChangedAction {
-  constructor(
-    public readonly bet: number | undefined,
-    public readonly playerId: number,
-    public readonly roundIndex: number
-  ) {
-    if (isNaN(bet)) this.bet = undefined
-  }
-}
-
-class ActualChangedAction {
-  constructor(
-    public readonly actual: number | undefined,
-    public readonly playerId: number,
-    public readonly roundIndex: number
-  ) {
-    if (isNaN(actual)) this.actual = undefined
-  }
-}
-
-function replace<T>(items: T[], index: number, update: (item: T) => T) {
-  const updatedArray = [...items]
-  const updatedItem = update(items[index])
-  updatedArray.splice(index, 1, updatedItem)
-  return updatedArray
 }
