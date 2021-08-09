@@ -1,3 +1,14 @@
+export const createInitialState = (): State => ({
+  players: Array(6).fill(0).map<Player>((_, i) => ({
+    rounds: Array(10).fill(0).map<Round>(() => 
+      ({ actual: undefined, bet: undefined, bonus: 0, score: 0, piratesCaptured: 0, skullKingsCaptured: 0 })
+    ),
+    id: i + 1,
+    name: `Player ${i + 1}`,
+  }))
+})
+
+
 export const stateReducer = (state: State, action: Action): State => {
   console.log(action)
 
@@ -77,7 +88,11 @@ export const stateReducer = (state: State, action: Action): State => {
     }
   }
 
-  return state
+  if (action instanceof ResetGameAction) {
+    return createInitialState()
+  }
+
+  throw new Error(`Unhandled action type ${JSON.stringify(action)}`)
 }
 
 export interface State {
@@ -103,6 +118,7 @@ export type Action = BetChangedAction
   | ActualChangedAction
   | PirateCapturesChangedAction
   | SkullKingsCapturedChangedAction
+  | ResetGameAction
 
 export class BetChangedAction {
   constructor(
@@ -143,6 +159,8 @@ export class SkullKingsCapturedChangedAction {
     if (isNaN(count)) this.count = undefined
   }
 }
+
+export class ResetGameAction {}
 
 function replace<T>(items: T[], index: number, update: (item: T) => T) {
   const updatedArray = [...items]

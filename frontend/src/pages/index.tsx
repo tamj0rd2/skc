@@ -1,7 +1,7 @@
-import React, { useReducer } from 'react'
+import React, { useEffect, useReducer } from 'react'
 import styled from 'styled-components'
 import { RoundModule } from '../../components/Round'
-import { ActualChangedAction, BetChangedAction, Player, State, stateReducer, Round } from '../../components/state'
+import { ActualChangedAction, BetChangedAction, stateReducer, Round, createInitialState, ResetGameAction } from '../../components/state'
 
 const TableInput = styled.input`
   display: inline-block;
@@ -63,13 +63,18 @@ const Table = styled.table`
 `
 
 const HomePage: React.FC = () => {
+  const storedState = global.localStorage?.getItem('appstate')
+  const initialState = storedState ? JSON.parse(storedState) : createInitialState()
   const [state, dispatch] = useReducer<typeof stateReducer>(stateReducer, initialState)
-  
-  console.log({state})
 
+  useEffect(() => {
+    localStorage.setItem('appstate', JSON.stringify(state))
+  })
+  
   return (
     <>
       <h1>Skull king calculator</h1>
+      <button onClick={() => dispatch(new ResetGameAction())}>Reset</button>
       <Table>
         <thead>
           <tr>
@@ -105,13 +110,3 @@ const HomePage: React.FC = () => {
 }
 
 export default HomePage
-
-const initialState: State = {
-  players: Array(6).fill(0).map<Player>((_, i) => ({
-    rounds: Array(10).fill(0).map<Round>(() => 
-      ({ actual: undefined, bet: undefined, bonus: 0, score: 0, piratesCaptured: 0, skullKingsCaptured: 0 })
-    ),
-    id: i + 1,
-    name: `Player ${i + 1}`,
-  }))
-}
