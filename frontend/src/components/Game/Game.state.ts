@@ -1,27 +1,24 @@
-export const createInitialState = (): State => ({
-  players: Array(6).fill(0).map<Player>((_, i) => ({
+export const createInitialState = (playerNames: {name: string, id: number}[]): GameState => ({
+  players: playerNames.map<Player>((p) => ({
+    ...p,
     rounds: Array(10).fill(0).map<Round>(() => 
-      ({ actual: undefined, bet: undefined, bonus: 0, score: 0, piratesCaptured: 0, skullKingsCaptured: 0 })
+      ({ won: undefined, bet: undefined, bonus: 0, score: 0, piratesCaptured: 0, skullKingsCaptured: 0 })
     ),
-    id: i + 1,
-    name: `Player ${i + 1}`,
   }))
 })
 
 
-export const stateReducer = (state: State, action: Action): State => {
-  console.log(action)
-
+export const gameStateReducer = (state: GameState, action: GameAction): GameState => {
   type Calc = Omit<Round, 'bonus' | 'score'> & { roundIndex: number }
 
-  const calcScore = ({ bet, actual, roundIndex, skullKingsCaptured, piratesCaptured }: Calc): number => {
+  const calcScore = ({ bet, won, roundIndex, skullKingsCaptured, piratesCaptured }: Calc): number => {
     const roundNumber = roundIndex + 1
-    if (bet === undefined || actual === undefined) return 0
+    if (bet === undefined || won === undefined) return 0
     
     const bonus = (piratesCaptured * 30) + (skullKingsCaptured * 50)
-    if (bet === 0) return bonus + (actual === 0 ? roundNumber * 10 : roundNumber * -10)
-    if (bet === actual) return bonus + (bet * 20)
-    return Math.abs(bet - actual) * -10
+    if (bet === 0) return won === 0 ? bonus + (roundNumber * 10) : roundNumber * -10
+    if (bet === won) return bonus + (bet * 20)
+    return Math.abs(bet - won) * -10
   }
 
   if (action instanceof BetChangedAction) {
@@ -40,7 +37,7 @@ export const stateReducer = (state: State, action: Action): State => {
     }
   }
 
-  if (action instanceof ActualChangedAction) {
+  if (action instanceof TricksWonChangedAction) {
     const playerIndex = state.players.findIndex(p => p.id === action.playerId)
     if (playerIndex < 0) throw new Error('whaa')
     return {
@@ -49,8 +46,8 @@ export const stateReducer = (state: State, action: Action): State => {
         ...p,
         rounds: replace(p.rounds, action.roundIndex, (r) => ({
           ...r,
-          actual: action.actual,
-          score: calcScore({ ...r, actual: action.actual, roundIndex: action.roundIndex })
+          won: action.tricksWon,
+          score: calcScore({ ...r, won: action.tricksWon, roundIndex: action.roundIndex })
         }))
       }))
     }
@@ -88,14 +85,10 @@ export const stateReducer = (state: State, action: Action): State => {
     }
   }
 
-  if (action instanceof ResetGameAction) {
-    return createInitialState()
-  }
-
   throw new Error(`Unhandled action type ${JSON.stringify(action)}`)
 }
 
-export interface State {
+export interface GameState {
   players: Player[]
 }
 
@@ -107,18 +100,17 @@ export interface Player {
 
 export interface Round {
   bet: number | undefined
-  actual: number | undefined
+  won: number | undefined
   bonus: number
   piratesCaptured: number
   skullKingsCaptured: number
   score: number
 }
 
-export type Action = BetChangedAction
-  | ActualChangedAction
+export type GameAction = BetChangedAction
+  | TricksWonChangedAction
   | PirateCapturesChangedAction
   | SkullKingsCapturedChangedAction
-  | ResetGameAction
 
 export class BetChangedAction {
   constructor(
@@ -126,41 +118,41 @@ export class BetChangedAction {
     public readonly playerId: number,
     public readonly roundIndex: number
   ) {
-    if (isNaN(bet)) this.bet = undefined
+    if (bet && isNaN(bet)) this.bet = undefined
   }
 }
 
-export class ActualChangedAction {
+export class TricksWonChangedAction {
   constructor(
-    public readonly actual: number | undefined,
+    public readonly tricksWon: number | undefined,
     public readonly playerId: number,
     public readonly roundIndex: number
   ) {
-    if (isNaN(actual)) this.actual = undefined
+    if (tricksWon && isNaN(tricksWon)) this.tricksWon = undefined
   }
 }
 
 export class PirateCapturesChangedAction {
+  public readonly count: number
   constructor(
-    public readonly count: number | undefined,
+    changedValue: number | undefined,
     public readonly playerId: number,
     public readonly roundIndex: number
   ) {
-    if (isNaN(count)) this.count = undefined
+    this.count = changedValue && !isNaN(changedValue) ? changedValue : 0
   }
 }
 
 export class SkullKingsCapturedChangedAction {
+  public readonly count: number
   constructor(
-    public readonly count: number | undefined,
+    changedValue: number | undefined,
     public readonly playerId: number,
     public readonly roundIndex: number
   ) {
-    if (isNaN(count)) this.count = undefined
+    this.count = changedValue && !isNaN(changedValue) ? changedValue : 0
   }
 }
-
-export class ResetGameAction {}
 
 function replace<T>(items: T[], index: number, update: (item: T) => T) {
   const updatedArray = [...items]
