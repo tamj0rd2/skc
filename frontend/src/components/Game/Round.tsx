@@ -15,24 +15,41 @@ interface NumberThingProps {
   max?: number
 }
 
-const NumberSpan = styled.span`
-  margin-left: 2px;
-  margin-right: 2px;
+
+const NumberThingStyle = styled.div`
+  button {
+    width: 15px;
+    padding: 0;
+  }
+
+  span {
+    margin-left: 2px;
+    margin-right: 2px;
+  }
+
+  input {
+    display: inline-block;
+    min-width: 10px;
+    max-width: 20px;
+  }
 `
 
 export const NumberThing: React.FC<NumberThingProps> = (props) => {
   return (
-    <>
-      <button
-        onClick={() => props.onChange((props.value || 0) - 1)}
-        disabled={props.value === 0}
-      >-</button>
-      <NumberSpan>{props.value ?? '?'}</NumberSpan>
-      <button
-        onClick={() => props.onChange((props.value || 0) + 1)}
-        disabled={(props.value ?? 0) >= (props.max ?? props.roundIndex + 1)}
-      >+</button>
-    </>
+    // <NumberThingStyle>
+    //   <button
+    //     onClick={() => props.onChange((props.value || 0) - 1)}
+    //     disabled={props.value === 0}
+    //   >-</button>
+    //   <span>{props.value ?? '?'}</span>
+    //   <button
+    //     onClick={() => props.onChange((props.value || 0) + 1)}
+    //     disabled={(props.value ?? 0) >= (props.max ?? props.roundIndex + 1)}
+    //   >+</button>
+    // </NumberThingStyle>
+    <NumberThingStyle>
+      <input pattern="\d*" type="tel" onChange={(e) => props.onChange(e.target.value ? parseInt(e.target.value) : 0)} />
+    </NumberThingStyle>
   )
 }
 
@@ -44,6 +61,10 @@ interface RoundProps {
 
 const RoundCard = styled.section`
   margin-top: 10px;
+
+  th {
+    font-weight: normal;
+  }
 `
 
 export const RoundModule: React.FC<RoundProps> =  ({ state, dispatch, roundIndex }) => {
@@ -56,12 +77,12 @@ export const RoundModule: React.FC<RoundProps> =  ({ state, dispatch, roundIndex
       <caption><strong>Round {roundNumber}</strong></caption>
       <thead>
         <tr>
-          <th>Player</th>
+          <th></th>
           <th>Bet</th>
-          <th>Won</th>
+          <th>Wins</th>
           <th>Pirates</th>
           <th>SkullKs</th>
-          <th>Diff</th>
+          <th>D</th>
           <th>Total</th>
         </tr>
       </thead>

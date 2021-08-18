@@ -12,7 +12,7 @@ export const Scoreboard: React.FC<ScoreboardProps> = ({ dispatch, state }) => {
     <Table>
         <caption><strong>Scoreboard</strong></caption>
         <thead>
-          <tr>
+          <tr style={{ width: '10px' }}>
             <th>Round</th>
             {state.players.map((p, i) => <th key={i}>{p.name}</th>)}
           </tr>
