@@ -31,6 +31,7 @@ const NumberThingStyle = styled.div`
     display: inline-block;
     min-width: 10px;
     max-width: 20px;
+    height: 20px;
   }
 `
 
